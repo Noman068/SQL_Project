@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Web Task</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #fdf6e3;
+            padding: 20px;
+            color: #333;
+        }
+        h2 {
+            text-align: center;
+        }
+        .controls {
+            text-align: center;
+            margin-bottom: 10px;
+        }
+        input, button {
+            padding: 8px 12px;
+            margin: 5px;
+            border-radius: 4px;
+            border: 1px solid #ccc;
+            font-size: 14px;
+        }
+        button {
+            cursor: pointer;
+            background: #eee;
+        }
+        .filter.active {
+            background-color: #004080;
+            color: #fff;
+        }
+        ul {
+            list-style: none;
+            padding: 0;
+            max-width: 400px;
+            margin: auto;
+        }
+        li {
+            background: #fff;
+            margin-bottom: 6px;
+            padding: 10px;
+            border-radius: 4px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border: 1px solid #bbb;
+            cursor: pointer;
+        }
+        .tag {
+            font-size: 0.85em;
+            padding: 2px 6px;
+            border-radius: 3px;
+            color: #fff;
+            min-width: 75px;
+            text-align: center;
+        }
+        .done {
+            background: #004080;
+        }
+        .undone {
+            background: #ff8c1a;
+        }
+    </style>
+</head>
+<body>
+
+<h2>Web Task</h2>
+
+<div class="controls">
+    <input id="entry" type="text" placeholder="Enter task">
+    <button onclick="insertItem()">Add</button>
+</div>
+
+<div class="controls">
+    <button class="filter" onclick="setView('all')">All</button>
+    <button class="filter" onclick="setView('pending')">Active</button>
+    <button class="filter" onclick="setView('finished')">Done</button>
+</div>
+
+<ul id="items"></ul>
+
+<script>
+    let data = []
+    let view = 'all'
+
+    function insertItem() {
+        let text = document.getElementById('entry').value.trim()
+        if (!text) return
+        data.push({ label: text, status: false })
+        document.getElementById('entry').value = ''
+        render()
+    }
+
+    function flipState(index) {
+        data[index].status = !data[index].status
+        render()
+    }
+
+    function setView(mode) {
+        view = mode
+        document.querySelectorAll('.filter').forEach(b => {
+            b.classList.remove('active')
+            if (b.textContent.toLowerCase() === (mode === 'pending' ? 'active' : mode)) {
+                b.classList.add('active')
+            }
+        })
+        render()
+    }
+
+    function render() {
+        let container = document.getElementById('items')
+        container.innerHTML = ''
+        data
+            .filter(item => 
+                view === 'all' || 
+                (view === 'finished' && item.status) || 
+                (view === 'pending' && !item.status)
+            )
+            .forEach((item, idx) => {
+                let li = document.createElement('li')
+                let text = document.createElement('span')
+                text.textContent = item.label
+                let tag = document.createElement('span')
+                tag.textContent = item.status ? "Complete" : "Incomplete"
+                tag.className = "tag " + (item.status ? "done" : "undone")
+                li.appendChild(text)
+                li.appendChild(tag)
+                li.onclick = () => flipState(idx)
+                container.appendChild(li)
+            })
+    }
+
+    setView('all')
+</script>
+
+</body>
+</html>
